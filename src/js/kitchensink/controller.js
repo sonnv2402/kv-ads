@@ -425,6 +425,18 @@ function addAccessors($scope) {
         });
     };
 
+    $scope.flipImageX = function() {
+        let obj = canvas.getActiveObject();
+        obj.set('flipX', !obj.flipX);
+        canvas.renderAll();
+    }
+
+    $scope.flipImageY = function() {
+        let obj = canvas.getActiveObject();
+        obj.set('flipY', !obj.flipY);
+        canvas.renderAll();
+    }
+
     $scope.addImage1 = function () {
         addImage('pug.jpg', 0.1, 0.25);
     };
@@ -830,76 +842,76 @@ function addAccessors($scope) {
 
     initCustomization();
 
-    function addTexts() {
-        var iText = new fabric.IText('lorem ipsum\ndolor\nsit Amet\nconsectetur', {
-            left: 100,
-            top: 150,
-            fontFamily: 'Helvetica',
-            fill: '#333',
-            styles: {
-                0: {
-                    0: {fill: 'red', fontSize: 20},
-                    1: {fill: 'red', fontSize: 30},
-                    2: {fill: 'red', fontSize: 40},
-                    3: {fill: 'red', fontSize: 50},
-                    4: {fill: 'red', fontSize: 60},
+    // function addTexts() {
+    //     var iText = new fabric.IText('lorem ipsum\ndolor\nsit Amet\nconsectetur', {
+    //         left: 100,
+    //         top: 150,
+    //         fontFamily: 'Helvetica',
+    //         fill: '#333',
+    //         styles: {
+    //             0: {
+    //                 0: {fill: 'red', fontSize: 20},
+    //                 1: {fill: 'red', fontSize: 30},
+    //                 2: {fill: 'red', fontSize: 40},
+    //                 3: {fill: 'red', fontSize: 50},
+    //                 4: {fill: 'red', fontSize: 60},
+    //
+    //                 6: {textBackgroundColor: 'yellow'},
+    //                 7: {textBackgroundColor: 'yellow'},
+    //                 8: {textBackgroundColor: 'yellow'},
+    //                 9: {textBackgroundColor: 'yellow'}
+    //             },
+    //             1: {
+    //                 0: {textDecoration: 'underline'},
+    //                 1: {textDecoration: 'underline'},
+    //                 2: {fill: 'green', fontStyle: 'italic', textDecoration: 'underline'},
+    //                 3: {fill: 'green', fontStyle: 'italic', textDecoration: 'underline'},
+    //                 4: {fill: 'green', fontStyle: 'italic', textDecoration: 'underline'}
+    //             },
+    //             2: {
+    //                 0: {fill: 'blue', fontWeight: 'bold'},
+    //                 1: {fill: 'blue', fontWeight: 'bold'},
+    //                 2: {fill: 'blue', fontWeight: 'bold'},
+    //
+    //                 4: {fontFamily: 'Courier', textDecoration: 'line-through'},
+    //                 5: {fontFamily: 'Courier', textDecoration: 'line-through'},
+    //                 6: {fontFamily: 'Courier', textDecoration: 'line-through'},
+    //                 7: {fontFamily: 'Courier', textDecoration: 'line-through'}
+    //             },
+    //             3: {
+    //                 0: {fontFamily: 'Impact', fill: '#666', textDecoration: 'line-through'},
+    //                 1: {fontFamily: 'Impact', fill: '#666', textDecoration: 'line-through'},
+    //                 2: {fontFamily: 'Impact', fill: '#666', textDecoration: 'line-through'},
+    //                 3: {fontFamily: 'Impact', fill: '#666', textDecoration: 'line-through'},
+    //                 4: {fontFamily: 'Impact', fill: '#666', textDecoration: 'line-through'}
+    //             }
+    //         }
+    //     });
+    //
+    //     var iText2 = new fabric.IText('foo bar\nbaz\nquux', {
+    //         left: 400,
+    //         top: 150,
+    //         fontFamily: 'Helvetica',
+    //         fill: '#333',
+    //         styles: {
+    //             0: {
+    //                 0: {fill: 'red'},
+    //                 1: {fill: 'red'},
+    //                 2: {fill: 'red'}
+    //             },
+    //             2: {
+    //                 0: {fill: 'blue'},
+    //                 1: {fill: 'blue'},
+    //                 2: {fill: 'blue'},
+    //                 3: {fill: 'blue'}
+    //             }
+    //         }
+    //     });
+    //
+    //     canvas.add(iText, iText2);
+    // }
 
-                    6: {textBackgroundColor: 'yellow'},
-                    7: {textBackgroundColor: 'yellow'},
-                    8: {textBackgroundColor: 'yellow'},
-                    9: {textBackgroundColor: 'yellow'}
-                },
-                1: {
-                    0: {textDecoration: 'underline'},
-                    1: {textDecoration: 'underline'},
-                    2: {fill: 'green', fontStyle: 'italic', textDecoration: 'underline'},
-                    3: {fill: 'green', fontStyle: 'italic', textDecoration: 'underline'},
-                    4: {fill: 'green', fontStyle: 'italic', textDecoration: 'underline'}
-                },
-                2: {
-                    0: {fill: 'blue', fontWeight: 'bold'},
-                    1: {fill: 'blue', fontWeight: 'bold'},
-                    2: {fill: 'blue', fontWeight: 'bold'},
-
-                    4: {fontFamily: 'Courier', textDecoration: 'line-through'},
-                    5: {fontFamily: 'Courier', textDecoration: 'line-through'},
-                    6: {fontFamily: 'Courier', textDecoration: 'line-through'},
-                    7: {fontFamily: 'Courier', textDecoration: 'line-through'}
-                },
-                3: {
-                    0: {fontFamily: 'Impact', fill: '#666', textDecoration: 'line-through'},
-                    1: {fontFamily: 'Impact', fill: '#666', textDecoration: 'line-through'},
-                    2: {fontFamily: 'Impact', fill: '#666', textDecoration: 'line-through'},
-                    3: {fontFamily: 'Impact', fill: '#666', textDecoration: 'line-through'},
-                    4: {fontFamily: 'Impact', fill: '#666', textDecoration: 'line-through'}
-                }
-            }
-        });
-
-        var iText2 = new fabric.IText('foo bar\nbaz\nquux', {
-            left: 400,
-            top: 150,
-            fontFamily: 'Helvetica',
-            fill: '#333',
-            styles: {
-                0: {
-                    0: {fill: 'red'},
-                    1: {fill: 'red'},
-                    2: {fill: 'red'}
-                },
-                2: {
-                    0: {fill: 'blue'},
-                    1: {fill: 'blue'},
-                    2: {fill: 'blue'},
-                    3: {fill: 'blue'}
-                }
-            }
-        });
-
-        canvas.add(iText, iText2);
-    }
-
-    addTexts();
+    // addTexts();
 
 
     $scope.getPreserveObjectStacking = function () {
@@ -1140,7 +1152,31 @@ kitchensink.controller('CanvasControls', ['$scope', '$element', '$window', funct
         } else {
             return;
         }
-        event.preventDefault();
+        // event.preventDefault();
     };
+
+    document.getElementById('imgLoader').onchange = function handleImage(e) {
+        var reader = new FileReader();
+        reader.onload = function (event){
+            var imgObj = new Image();
+            imgObj.src = event.target.result;
+            imgObj.onload = function () {
+                var image = new fabric.Image(imgObj);
+                image.set({
+                    // angle: 0,
+                //     padding: 10,
+                //     cornersize:10,
+                //     height:110,
+                //     width:110,
+                });
+                image.scaleToHeight(300);
+                image.scaleToWidth(300);
+                canvas.centerObject(image);
+                canvas.add(image);
+                canvas.renderAll();
+            }
+        }
+        reader.readAsDataURL(e.target.files[0]);
+    }
 
 }]);
