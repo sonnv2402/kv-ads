@@ -799,6 +799,14 @@
 
             <div class="tab-pane active" id="canvastab">
                 <div id="global-controls">
+                    <p>
+                        <button class="btn btn-success" id="undo" ng-click="undo()">
+                            Undo
+                        </button>
+                        <button class="btn btn-object-action" id="redo" ng-click="redo()">
+                            Redo
+                        </button>
+                    </p>
                     <p id="complexity">
                         Canvas complexity (number of paths):
                         <strong>{[ canvas.complexity() ]}</strong>
@@ -926,10 +934,12 @@
     <script src="../../lib/aligning_guidelines.js"></script> -->
 
     <script src="lib/font_definitions.js"></script>
-
+    <script src="js/canvas-controller/canvas-history.js"></script>
     <script>
         var kitchensink = {};
         var canvas = new fabric.Canvas('canvas');
+        var canvasHistory = new CanvasHistory();
+        canvasHistory.clearCanvasHistory();
     </script>
 
     <script src="js/kitchensink/utils.js"></script>
@@ -969,7 +979,6 @@
 
                 }
             })
-
 
             canvas.on('mouse:wheel', function (opt) {
                 var e = opt.e;
