@@ -1117,20 +1117,12 @@ function addAccessors($scope) {
 }
 
 function addNewFunction($scope) {
-    function reLoadCanvas(canvasJson) {
-        canvas.clear().renderAll();
-        canvas.loadFromJSON(canvasJson);
-        canvas.renderAll();
-    }
-
     $scope.undo = function () {
-        var canvasJson = canvasHistory.getPreviousCanvas();
-        reLoadCanvas(canvasJson);
+        canvas.undo();
     };
 
     $scope.redo = function () {
-        var canvasJson = canvasHistory.getNextCanvas();
-        reLoadCanvas(canvasJson);
+        canvas.redo();
     };
 }
 
@@ -1141,16 +1133,10 @@ function watchCanvas($scope) {
         canvas.renderAll();
     }
 
-    function updateModifications(canvas) {
-        canvasHistory.addHistory(canvas);
-    }
-
     canvas
         .on('object:selected', updateScope)
         .on('path:created', updateScope)
-        .on('selection:cleared', updateScope)
-        .on('object:modified', function(){ updateModifications(canvas) })
-        .on('object:added', function () { updateModifications(canvas) });
+        .on('selection:cleared', updateScope);
 }
 
 kitchensink.controller('CanvasControls', ['$scope', '$element', '$window', function ($scope, $element, $window) {

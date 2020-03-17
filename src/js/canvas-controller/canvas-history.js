@@ -1,79 +1,128 @@
-(function () {
+/**
+ * Fork from https://github.com/lyzerk/fabric-history
+ */
 
-    var canvasLocalStorageKey = 'Kv_Ads_canvas';
+/**
+ * Override the initialize function for the _historyInit();
+ */
+fabric.Canvas.prototype.initialize = (function(originalFn) {
+    return function(...args) {
+      originalFn.call(this, ...args);
+      this._historyInit();
+      return this;
+    };
+})(fabric.Canvas.prototype.initialize);
+  
+  /**
+   * Override the dispose function for the _historyDispose();
+   */
+fabric.Canvas.prototype.dispose = (function(originalFn) {
+    return function(...args) {
+        originalFn.call(this, ...args);
+        this._historyDispose();
+        return this;
+    };
+})(fabric.Canvas.prototype.dispose);
 
-    function CanvasHistory() {
-        this.canvasIndex = 0;
+/**
+ * Returns current state of the string of the canvas
+ */
+fabric.Canvas.prototype._historyNext = function () {
+    return JSON.stringify(this.toDatalessJSON(this.extraProps));
+}
+
+/**
+ * Returns an object with fabricjs event mappings
+ */
+fabric.Canvas.prototype._historyEvents = function() {
+    return {
+        "object:added": this._historySaveAction,
+        "object:removed": this._historySaveAction,
+        "object:modified": this._historySaveAction,
+        "object:skewing": this._historySaveAction
+    }
+}
+
+/**
+ * Initialization of the plugin
+ */
+fabric.Canvas.prototype._historyInit = function () {
+    this.historyUndo = [];
+    this.historyRedo = [];
+    this.historyNextState = this._historyNext();
+
+    this.on(this._historyEvents());
+}
+
+/**
+ * Remove the custom event listeners
+ */
+fabric.Canvas.prototype._historyDispose = function () {
+    this.off(this._historyEvents())
+}
+
+/**
+ * It pushes the state of the canvas into history stack
+ */
+fabric.Canvas.prototype._historySaveAction = function () {
+
+    if (this.historyProcessing)
+        return;
+
+    const json = this.historyNextState;
+    this.historyUndo.push(json);
+    this.historyNextState = this._historyNext();
+    this.fire('history:append', { json: json });
+}
+
+/**
+ * Undo to latest history. 
+ * Pop the latest state of the history. Re-render.
+ * Also, pushes into redo history.
+ */
+fabric.Canvas.prototype.undo = function () {
+    // The undo process will render the new states of the objects
+    // Therefore, object:added and object:modified events will triggered again
+    // To ignore those events, we are setting a flag.
+    this.historyProcessing = true;
+
+    const history = this.historyUndo.pop();
+    if (history) {
+        // Push the current state to the redo history
+        this.historyRedo.push(this._historyNext());
+
+        this.loadFromJSON(history).renderAll();
+        this.fire('history:undo');
     }
 
+    this.historyProcessing = false;
+}
 
-    CanvasHistory.prototype = {
-        addHistory: function (canvas) {
-            addCanvasHistory(canvasLocalStorageKey, canvas);
-        }
-        , getPreviousCanvas: function () {
-            var canvases = getCanvasHistory(canvasLocalStorageKey);
-            if (canvases && this.canvasIndex < canvases.length) {
-                var json = getCanvasHistory(canvasLocalStorageKey, canvases.length - 1 - this.canvasIndex - 1);
-                this.canvasIndex++;
-                return json;
-            }
-
-            return null;
-        }
-        , getNextCanvas: function () {
-            var canvases = getCanvasHistory(canvasLocalStorageKey);
-            if (canvases && this.canvasIndex > 0) {
-                var json = getCanvasHistory(canvasLocalStorageKey, canvases.length - 1 - this.canvasIndex + 1);
-                this.canvasIndex--;
-                return json;
-            }
-
-            return null;
-        }
-        , deleteLastItem: function () {
-            setTimeout(function () {
-                var canvases = getCanvasHistory(canvasLocalStorageKey);
-                if (!canvases) {
-                    return;
-                }
-                canvases.pop();
-                saveCanvasHistory(canvasLocalStorageKey, canvases);
-            }, 0);
-        }
-        , clearCanvasHistory: function () {
-            clearHistory(canvasLocalStorageKey);
-        }
-    }
-    
-    function getCanvasHistory(key, index) {
-        var existCanvas = localStorage.getItem(key);
-        if (!existCanvas) {
-            return null;
-        }
-
-        var canvases = JSON.parse(existCanvas);
-        return typeof(index) != 'undefined' ? canvases[index] : canvases;
+/**
+ * Redo to latest undo history.
+ */
+fabric.Canvas.prototype.redo = function () {
+    // The undo process will render the new states of the objects
+    // Therefore, object:added and object:modified events will triggered again
+    // To ignore those events, we are setting a flag.
+    this.historyProcessing = true;
+    const history = this.historyRedo.pop();
+    if (history) {
+        // Every redo action is actually a new action to the undo history
+        this.historyUndo.push(this._historyNext());
+        
+        this.loadFromJSON(history).renderAll();
+        this.fire('history:redo');
     }
 
-    function addCanvasHistory(key, canvas) {
-        var canvases = [];
-        var existCanvas = localStorage.getItem(key);
-        if (existCanvas) {
-            canvases = JSON.parse(existCanvas);
-        }
+    this.historyProcessing = false;
+}
 
-        canvases.push(canvas);
-        localStorage.setItem(key, JSON.stringify(canvases));
-    }
-
-    function saveCanvasHistory(key, canvases) {
-        localStorage.setItem(key, JSON.stringify(canvases));
-    }
-
-    function clearHistory(key) {
-        localStorage.removeItem(key);
-    }
-
-    window.CanvasHistory = CanvasHistory;
-})()
+/**
+ * Clear undo and redo history stacks
+ */
+fabric.Canvas.prototype.clearHistory = function() {
+    this.historyUndo = [];
+    this.historyRedo = [];
+    this.fire('history:clear');
+}
